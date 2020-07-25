@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <title>반짝반짝</title>
+
+        <style>
+            body{background-color: black;}
+            canvas { background: rgb(15, 5, 34); display: block; margin: 0 auto; }
+        </style>
+    </head>
+
+    <body>
+        <canvas id="Screen" width="2000" height="1300">
+            <h2 style="font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif; color: white;"> 개발자: 이상윤</h2>
+        </canvas>
+
+        <script>
+            var canvas = document.getElementById("Screen");
+            var ctx = canvas.getContext("2d");
+            
+            var LineNumber = 2;
+            var Speed = 17;
+
+            var LineList = Array();
+
+            var clicking = false;
+
+            var mp = [0,0];
+            
+            function componentToHex(c) {
+                var hex = c.toString(16);
+                return hex.length == 1 ? "0" + hex : hex;
+            }
+
+            function rgbToHex(r, g, b) {
+                return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+            }
+
+                        
+            function drawLine(){
+                for (var i = 0; i < LineList.length; i ++){
+                    ctx.beginPath();
+                    ctx.moveTo(LineList[i].posx, LineList[i].posy);
+
+                    LineList[i].posx += Speed * Math.cos(LineList[i].rotation);
+                    LineList[i].posy += Speed * Math.sin(LineList[i].rotation);
+
+                    if (0 > LineList[i].posx || LineList[i].posx > canvas.width || LineList[i].posy < 0 || LineList[i].posy > canvas.width){
+                        
+                        if(LineList[i].life > 0){
+                            LineList[i].rotation *= -1;
+                            LineList[i].life -= 1
+                        } else{
+                            LineList.splice(i, 1);
+                            continue;
+                        }
+                    }
+
+                    ctx.lineTo(LineList[i].posx, LineList[i].posy);
+
+                    ctx.strokeStyle = rgbToHex(LineList[i].color[0] * LineList[i].life, LineList[i].color[1]* LineList[i].life, LineList[i].color[2]* LineList[i].life);
+                    ctx.stroke();
+                }
+            }
+
+            function newLine(xy){
+                asdf = 0
+                while (asdf <= LineNumber){
+                    LineList.push({'posx' : xy[0] , 'posy' : xy[1], 'rotation': Math.random() * 360, 'life' : 3,'color':[Math.round(Math.random() * 255), Math.round(Math.random() * 255), Math.round(Math.random() * 255)]})
+                    asdf += 1
+                }
+                
+            }
+
+            function fn_location(e){
+                var x = event.pageX;
+                var y = event.pageY; 
+                return [x, y];
+            }
+
+            function click(){
+                newLine(mp);
+            }
+
+            function draw(){
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                document.getElementById("Screen").addEventListener("mousemove", function () {
+                    mp = fn_location();
+                    
+                });
+                click();
+                drawLine();
+
+                ctx.font= "20px malgun gothic";
+                ctx.fillStyle = "rgba(255,255,255,1)";
+                ctx.fillText("개발자: 이상윤", 10, 40);
+            }
+
+            setInterval(draw, 20);
+        </script>
+    </body>
+</html>
